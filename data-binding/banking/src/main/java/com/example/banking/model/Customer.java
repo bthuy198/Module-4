@@ -14,7 +14,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "customers")
-@SQLDelete(sql = "UPDATE banking.customer SET deleted = true WHERE id=?")
+@SQLDelete(sql = "UPDATE banking.customers SET deleted = true WHERE id=?")
 @Where(clause = "deleted=false")
 public class Customer extends BaseEntity{
     @Id
@@ -35,14 +35,14 @@ public class Customer extends BaseEntity{
     private boolean deleted = Boolean.FALSE;
     @Column(precision = 10, scale = 0, nullable = false, columnDefinition = "decimal(12,0) default 0")
     private BigDecimal balance;
-//    @OneToMany(targetEntity = Deposit.class)
-//    private List<Deposit> deposits;
-//
-//    @OneToMany(targetEntity = Transfer.class)
-//    private List<Transfer> senders;
-//
-//    @OneToMany(targetEntity = Transfer.class)
-//    private List<Transfer> recipients;
+    @OneToMany(targetEntity = Deposit.class)
+    private List<Deposit> deposits;
+
+    @OneToMany(targetEntity = Transfer.class)
+    private List<Transfer> senders;
+
+    @OneToMany(targetEntity = Transfer.class)
+    private List<Transfer> recipients;
     public Customer() {
     }
 

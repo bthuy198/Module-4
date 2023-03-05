@@ -63,22 +63,22 @@
             <div class="row" style="margin-top: 20px;">
                 <div class="col-3">
                     <label for="senderId">Sender ID</label>
-                    <input th:field="*{sender.id}" type="text" class="form-control" name="senderId" id="senderId">
+                    <input th:field="*{sender.id}" type="text" class="form-control" name="senderId" id="senderId" readonly>
                 </div>
                 <div class="col-3">
                     <label for="senderName">Sender Name</label>
                     <input th:field="*{sender.fullName}" type="text" class="form-control" name="senderName"
-                           id="senderName">
+                           id="senderName" readonly>
                 </div>
                 <div class="col-3">
                     <label for="senderEmail">Email</label>
                     <input th:field="*{sender.email}" type="text" class="form-control" name="senderEmail"
-                           id="senderEmail">
+                           id="senderEmail" readonly>
                 </div>
                 <div class="col-3">
                     <label for="senderBalance">Sender balance</label>
-                    <input th:field="*{sender.balance}" type="number" class="form-control" name="senderBalance"
-                           id="senderBalance">
+                    <input th:field="*{sender.balance}" type="text" class="form-control" name="senderBalance"
+                           id="senderBalance" readonly>
                 </div>
                 <div class="col-3">
                     <label>Recipient Name</label>
@@ -104,9 +104,9 @@
                            id="totalAmount">
                 </div>
                 <div class="col-3" style="margin-top: 20px;">
-                    <button type="submit" class="btn btn-outline-primary"><a><i
+                    <button type="submit" class="btn btn-outline-primary"><i
                             class="fa-solid fa-arrow-right-arrow-left"></i>
-                        Transfer</a></button>
+                        Transfer</button>
                 </div>
             </div>
         </form>

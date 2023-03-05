@@ -1,5 +1,6 @@
 package com.example.banking.service.deposit;
 
+import com.example.banking.model.Customer;
 import com.example.banking.model.Deposit;
 import com.example.banking.repository.DepositRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,7 @@ public class DepositService implements IDepositService{
     }
 
     @Override
-    public void deleteById(Long id) {
+    public Customer deleteById(Long id) {
+        return null;
     }
 }

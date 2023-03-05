@@ -44,7 +44,7 @@
                 <h2>Withdraw money from the customer's information</h2>
             </div>
             <div class="col-3 justify-content-end">
-                <a th:href="@{/WEB-INF/views/customers}">
+                <a th:href="@{/customers}">
                     <button><i class="fa-solid fa-list"></i> Customer list</button>
                 </a>
             </div>
@@ -68,16 +68,16 @@
             <div class="row" style="margin-top: 20px;">
                 <div class="col-6">
                     <label for="customerId">Customer ID</label>
-                    <input th:field="*{customer.id}" type="text" class="form-control" name="customerId" id="customerId">
+                    <input th:field="*{customer.id}" type="text" class="form-control" name="customerId" id="customerId" readonly>
                 </div>
                 <div class="col-6">
                     <label for="name">FullName</label>
-                    <input th:field="*{customer.fullName}" type="text" class="form-control" id="name" name="name">
+                    <input th:field="*{customer.fullName}" type="text" class="form-control" id="name" name="name" readonly>
                 </div>
                 <div class="col-6">
                     <label for="currentBalance">Current balance ($)</label>
                     <input th:field="*{customer.balance}" type="text" class="form-control" name="currentBalance"
-                           id="currentBalance">
+                           id="currentBalance" readonly>
                 </div>
                 <div class="col-6">
                     <label for="transaction">Transaction Amount ($)</label>

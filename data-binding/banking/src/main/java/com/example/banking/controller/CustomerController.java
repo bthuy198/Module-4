@@ -103,4 +103,24 @@ public class CustomerController {
         model.addAttribute("withdraws", withdraws);
         return "customer/history";
     }
+
+    @GetMapping("/delete/{id}")
+    public String showDeletePage(@PathVariable long id, Model model){
+        Optional<Customer> optionalCustomer = customerService.findById(id);
+        if(!optionalCustomer.isPresent()){
+            return "404";
+        }
+        model.addAttribute("customer", optionalCustomer.get());
+        return "customer/suspended";
+    }
+
+    @PostMapping("/delete/{id}")
+    public String remove(@PathVariable long id, Model model){
+        Optional<Customer> optionalCustomer = customerService.findById(id);
+        if(!optionalCustomer.isPresent()){
+            return "404";
+        }
+        Customer customer = customerService.deleteById(id);
+        return "customer/list";
+    }
 }

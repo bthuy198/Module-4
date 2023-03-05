@@ -1,5 +1,6 @@
 package com.example.banking.service.transfer;
 
+import com.example.banking.model.Customer;
 import com.example.banking.model.Transfer;
 import com.example.banking.repository.TransferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,7 @@ public class TransferService implements ITransferService{
     }
 
     @Override
-    public void deleteById(Long id) {
+    public Customer deleteById(Long id) {
+        return null;
     }
 }

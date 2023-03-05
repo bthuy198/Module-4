@@ -1,5 +1,6 @@
 package com.example.banking.service.withdraw;
 
+import com.example.banking.model.Customer;
 import com.example.banking.model.Withdraw;
 import com.example.banking.repository.WithdrawRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,8 @@ public class WithdrawService implements IWithdrawService{
     }
 
     @Override
-    public void deleteById(Long id) {
+    public Customer deleteById(Long id) {
 
+        return null;
     }
 }
