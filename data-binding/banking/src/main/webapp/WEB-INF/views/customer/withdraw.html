@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <th:block th:replace="layout/head"/>
+    <title>Banking </title>
+    <style>
+        .header {
+            background-color: rgb(103, 158, 202);
+            color: white;
+            padding: 20px 30px;
+        }
+
+        .table > thead {
+            background-color: green;
+            color: white;
+        }
+
+        .header button {
+            background: none;
+            border: 1px white solid;
+            border-radius: 3px;
+            color: white;
+            font-size: 15px;
+            padding: 7px;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        input {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <div class="row">
+            <div class="col-9">
+                <h2>Withdraw money from the customer's information</h2>
+            </div>
+            <div class="col-3 justify-content-end">
+                <a th:href="@{/WEB-INF/views/customers}">
+                    <button><i class="fa-solid fa-list"></i> Customer list</button>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top: 30px; margin-bottom: 30px">
+        <div class="alert alert-success alert-dismissible fade show" role="alert" th:if="${message != null}">
+            <p th:text="${message}"></p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <div style="margin-top: 30px; margin-bottom: 30px">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${errors == true || error != null}">
+            <p th:each="err : ${#fields.errors('withdraw.*')}" th:text="${err}"></p>
+            <p th:text="${error}"></p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+    <div class="main-content">
+        <form method="post" th:object="${withdraw}">
+            <div class="row" style="margin-top: 20px;">
+                <div class="col-6">
+                    <label for="customerId">Customer ID</label>
+                    <input th:field="*{customer.id}" type="text" class="form-control" name="customerId" id="customerId">
+                </div>
+                <div class="col-6">
+                    <label for="name">FullName</label>
+                    <input th:field="*{customer.fullName}" type="text" class="form-control" id="name" name="name">
+                </div>
+                <div class="col-6">
+                    <label for="currentBalance">Current balance ($)</label>
+                    <input th:field="*{customer.balance}" type="text" class="form-control" name="currentBalance"
+                           id="currentBalance">
+                </div>
+                <div class="col-6">
+                    <label for="transaction">Transaction Amount ($)</label>
+                    <input th:field="*{transactionAmount}" type="text" class="form-control" name="transaction"
+                           id="transaction">
+                </div>
+                <div class="col-6" style="margin-top: 20px;">
+                    <button type="submit" class="btn btn-outline-warning"><a><i class="fa-solid fa-minus"></i> Withdraw</a>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<th:block th:replace="layout/footer"/>
+</body>
+
+</html>

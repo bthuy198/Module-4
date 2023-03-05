@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <th:block th:replace="layout/head"/>
+    <title>Banking </title>
+    <style>
+        .header {
+            background-color: rgb(103, 158, 202);
+            color: white;
+            padding: 20px 30px;
+        }
+
+        .table > thead {
+            background-color: green;
+            color: white;
+        }
+
+        button {
+            background: none;
+            border: 1px white solid;
+            border-radius: 3px;
+            color: white;
+            font-size: 15px;
+            padding: 7px;
+        }
+
+        .table > tbody > tr > td:last-child > button {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <div class="row">
+            <div class="col-6">
+                <h2>List of customers</h2>
+            </div>
+            <div class="col-6">
+                <a th:href="@{/customers/history}"><button><i class="fa-sharp fa-solid fa-arrow-rotate-left"></i> Transfer money Information
+                </button></a>
+                <a th:href="@{/customers/create}">
+                    <button><i class="fa-regular fa-square-plus"></i> Add New Customer</button>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="main-content">
+        <table class="table text-center">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">FullName</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Address</th>
+                <th scope="col">Balance</th>
+                <th scope="col" colspan="5">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="c : ${customers}">
+                <tr>
+                    <th scope="row" th:text="${c.getId()}"></th>
+                    <td th:text="${c.getFullName()}"></td>
+                    <td th:text="${c.getEmail()}"></td>
+                    <td th:text="${c.getPhone()}"></td>
+                    <td th:text="${c.getAddress()}"></td>
+                    <td th:text="${#numbers.formatDecimal(c.getBalance(), 1, 'POINT', 0, 'DEFAULT')} + ' VNĐ'"></td>
+                    <td colspan="5">
+                        <a th:href="@{/customers/update/__${c.getId()}__}">
+                            <button type="button" class="btn btn-outline-secondary"><i
+                                    class="fa-solid fa-pen-to-square"></i></button>
+                        </a>
+                        <a th:href="@{/customers/deposit/__${c.getId()}__}">
+                            <button type="button" class="btn btn-outline-success"><i class="fa-solid fa-plus"></i>
+                            </button>
+                        </a>
+                        <a th:href="@{/customers/withdraw/__${c.getId()}__}">
+                            <button type="button" class="btn btn-outline-warning"><i class="fa-solid fa-minus"></i>
+                            </button>
+                        </a>
+                        <a th:href="@{/customers/transfer/__${c.getId()}__}">
+                            <button type="button" class="btn btn-outline-primary"><i
+                                    class="fa-solid fa-arrow-right-arrow-left"></i></button>
+                        </a>
+                        <a>
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal"><i class="fa-solid fa-ban"></i>
+                            </button>
+                        </a>
+                    </td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Customer</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Do you want to delete customer "..."?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-outline-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="layout/footer"/>
+</body>
+
+</html>
