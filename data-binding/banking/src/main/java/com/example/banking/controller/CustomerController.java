@@ -1,20 +1,18 @@
 package com.example.banking.controller;
 
-import com.example.banking.model.Customer;
-import com.example.banking.model.Deposit;
-import com.example.banking.model.Transfer;
-import com.example.banking.model.Withdraw;
+import com.example.banking.model.*;
+import com.example.banking.repository.views.HistoryViewRepository;
 import com.example.banking.service.customer.ICustomerService;
 import com.example.banking.service.deposit.IDepositService;
 import com.example.banking.service.transfer.ITransferService;
 import com.example.banking.service.withdraw.IWithdrawService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -23,6 +21,9 @@ import java.util.Optional;
 @Controller
 @RequestMapping("customers")
 public class CustomerController {
+    private static Sort sort = Sort.by("createdAt").ascending();
+    @Autowired
+    HistoryViewRepository historyViewRepository;
     @Autowired
     private ICustomerService customerService;
     @Autowired
@@ -101,6 +102,9 @@ public class CustomerController {
 
         List<Withdraw> withdraws = withdrawService.findAll();
         model.addAttribute("withdraws", withdraws);
+
+        List<HistoryView> historyViews = historyViewRepository.findAll();
+        model.addAttribute("historyViews", historyViews);
         return "customer/history";
     }
 

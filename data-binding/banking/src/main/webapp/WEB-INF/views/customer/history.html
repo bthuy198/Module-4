@@ -130,7 +130,31 @@
                 </th:block>
                 </tbody>
             </table>
-
+            <div style="margin: 20px; text-align: center;">
+                <h4> History</h4>
+            </div>
+            <table class="table text-center">
+                <thead>
+                <tr>
+                    <th scope="col">Transaction ID</th>
+                    <th scope="col">Customer Name</th>
+                    <th scope="col">Transaction Amount</th>
+                    <th scope="col">Created At</th>
+                    <th scope="col">Method</th>
+                </tr>
+                </thead>
+                <tbody>
+                <th:block th:each="item : ${historyViews}">
+                    <tr>
+                        <th scope="row" th:text="${item.id}"></th>
+                        <td th:text="${item.fullName}"></td>
+                        <td th:text="${item.transactionAmount}"></td>
+                        <td th:text="${#dates.format(item.createdAt, 'dd/MM/yyyy')}"></td>
+                        <td th:text="${item.method}"></td>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
         </div>
     </div>
 </body>

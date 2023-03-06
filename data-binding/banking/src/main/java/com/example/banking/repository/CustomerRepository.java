@@ -16,13 +16,12 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Query(value = "from Customer where email= ?1")
     List<Customer> findEmailByEmail(@Param("email") String email);
 
-//    List<Customer> findAllByFullNameLikeOrEmailLikeOrPhoneLikeOrAddressLikeAndDeletedFalse(String fullName, String email, String phone, String address);
-//
-//    List<Customer> findAllByIdNotAndDeletedFalse(Long id);
-//
-//    List<Customer> findAllByDeletedFalse();
-//
-//    Optional<Customer> findByIdAndDeletedFalse(Long id);
+    List<Customer> findAllByFullNameLikeOrEmailLikeOrPhoneLikeOrAddressLikeAndDeletedFalse(String fullName, String email, String phone, String address);
 
+    List<Customer> findAllByIdNotAndDeletedFalse(Long id);
+
+    List<Customer> findAllByDeletedFalse();
+
+    Optional<Customer> findByIdAndDeletedFalse(Long id);
 
 }
