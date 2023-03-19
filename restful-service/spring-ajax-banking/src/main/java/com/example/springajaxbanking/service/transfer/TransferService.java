@@ -2,6 +2,8 @@ package com.example.springajaxbanking.service.transfer;
 
 import com.example.springajaxbanking.model.Customer;
 import com.example.springajaxbanking.model.Transfer;
+import com.example.springajaxbanking.model.dto.TransferDTO;
+import com.example.springajaxbanking.model.dto.TransferViewDTO;
 import com.example.springajaxbanking.repository.TransferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,11 @@ public class TransferService implements ITransferService{
     @Override
     public List<Transfer> findAll() {
         return transferRepository.findAll();
+    }
+
+    @Override
+    public List<TransferViewDTO> findAllTransferViewDTO() {
+        return transferRepository.findAllTransferViewDTO();
     }
 
     @Override

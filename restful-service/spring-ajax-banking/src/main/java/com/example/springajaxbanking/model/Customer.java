@@ -28,13 +28,13 @@ public class Customer extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "full_name", nullable = false)
-    @Pattern(regexp = "^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$", message = "Full name is not valid")
+//    @Pattern(regexp = "^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$", message = "Full name is not valid")
     private String fullName;
     @Column(name = "email", nullable = false)
     @Pattern(regexp="^[\\w]+@([\\w-]+\\.)+[\\w-]{2,6}$", message = "Email address is not valid")
     private String email;
     @Column(name = "phone", nullable = false)
-    @Pattern(regexp = "^0[3798][0-9]{8}", message = "Phone number is not valid")
+//    @Pattern(regexp = "^0[3798][0-9]{8}", message = "Phone number is not valid")
     private String phone;
     @Column(precision = 10, scale = 0, nullable = false, columnDefinition = "decimal(12,0) default 0")
     private BigDecimal balance;

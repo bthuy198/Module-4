@@ -1,19 +1,14 @@
 package com.example.springajaxbanking.service.customer;
 
-import com.example.springajaxbanking.model.Customer;
-import com.example.springajaxbanking.model.Deposit;
-import com.example.springajaxbanking.model.LocationRegion;
-import com.example.springajaxbanking.model.Transfer;
+import com.example.springajaxbanking.model.*;
 import com.example.springajaxbanking.model.dto.CustomerDTO;
-import com.example.springajaxbanking.repository.CustomerRepository;
-import com.example.springajaxbanking.repository.DepositRepository;
-import com.example.springajaxbanking.repository.LocationRegionRepository;
-import com.example.springajaxbanking.repository.TransferRepository;
+import com.example.springajaxbanking.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +22,8 @@ public class CustomerService implements ICustomerService {
     @Autowired
     private DepositRepository depositRepository;
     @Autowired
+    private WithdrawRepository withdrawRepository;
+    @Autowired
     private TransferRepository transferRepository;
     @Autowired
     private EntityManager entityManager;
@@ -37,8 +34,12 @@ public class CustomerService implements ICustomerService {
 //        return customerRepository.findAllByDeletedFalse();
     }
 
+    @Override
+    public List<CustomerDTO> findAllByDeletedIsFalse() {
+        return customerRepository.findAllByDeletedIsFalse();
+    }
 
-//    public Iterable<Customer> findAll(boolean isDeleted) {
+    //    public Iterable<Customer> findAll(boolean isDeleted) {
 //        Session session = entityManager.unwrap(Session.class);
 //        Filter filter = session.enableFilter("deletedProductFilter");
 //        filter.setParameter("isDeleted", isDeleted);
@@ -70,7 +71,7 @@ public class CustomerService implements ICustomerService {
     @Override
     public void delete(Customer customer) {
         customer.setDeleted(true);
-        customerRepository.delete(customer);
+        customerRepository.save(customer);
     }
 
     @Override
@@ -92,17 +93,35 @@ public class CustomerService implements ICustomerService {
     }
 
     @Override
+    public void incrementBalance(BigDecimal transactionAmount, Customer customer) {
+        customerRepository.incrementBalance(transactionAmount, customer);
+    }
+
+    @Override
+    public void decrementBalance(BigDecimal transactionAmount, Customer customer) {
+        customerRepository.incrementBalance(transactionAmount, customer);
+    }
+
+    @Override
     public Deposit deposit(Deposit deposit) {
         depositRepository.save(deposit);
-        customerRepository.save(deposit.getCustomer());
+        customerRepository.incrementBalance(deposit.getTransactionAmount(), deposit.getCustomer());
+//        customerRepository.save(deposit.getCustomer());
         return deposit;
+    }
+
+    @Override
+    public Withdraw withdraw(Withdraw withdraw) {
+        withdrawRepository.save(withdraw);
+        customerRepository.decrementBalance(withdraw.getTransactionAmount(), withdraw.getCustomer());
+        return withdraw;
     }
 
     @Override
     public Transfer transfer(Transfer transfer) {
         transferRepository.save(transfer);
-        customerRepository.save(transfer.getRecipient());
-        customerRepository.save(transfer.getSender());
+        customerRepository.decrementBalance(transfer.getTotalAmount(), transfer.getSender());
+        customerRepository.incrementBalance(transfer.getTransferAmount(), transfer.getRecipient());
         return transfer;
     }
 

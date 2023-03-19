@@ -37,26 +37,26 @@ public class CustomerController {
     @GetMapping("/create")
     public String showCreateForm(Model model){
         model.addAttribute("customer", new Customer());
-        return "customer/create";
+        return "customer/list";
     }
     @PostMapping("/create")
     public String createCustomer(@Validated @ModelAttribute Customer customer, BindingResult bindingResult, Model model){
         if(bindingResult.hasFieldErrors()){
             model.addAttribute("errors", true);
             model.addAttribute("customer", customer);
-            return "customer/create";
+            return "customer/list";
         }
         List<Customer> email = customerService.findEmailByEmail(customer.getEmail());
         if(email.size() != 0){
             model.addAttribute("err", "Email has been exist");
             model.addAttribute("customer", customer);
-            return "customer/create";
+            return "customer/list";
         }
         customer.setBalance(BigDecimal.ZERO);
         customerService.save(customer);
         model.addAttribute("message", "Added new customer successfully!!!");
         model.addAttribute("customer", new Customer());
-        return "customer/create";
+        return "customer/list";
     }
     @GetMapping("/update/{id}")
     public String showUpdateForm(@PathVariable long id, Model model){

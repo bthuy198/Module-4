@@ -3,10 +3,12 @@ package com.example.springajaxbanking.repository;
 import com.example.springajaxbanking.model.Customer;
 import com.example.springajaxbanking.model.dto.CustomerDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,8 +36,36 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
             "cus.balance, " +
             "cus.locationRegion" +
             ") " +
-            "FROM Customer AS cus"
+            "FROM Customer AS cus " +
+            "WHERE cus.deleted = false"
     )
     List<CustomerDTO> findAllCustomerDTO();
 
+    @Query("SELECT NEW com.example.springajaxbanking.model.dto.CustomerDTO (" +
+            "cus.id, " +
+            "cus.fullName, " +
+            "cus.email, " +
+            "cus.phone, " +
+            "cus.balance, " +
+            "cus.locationRegion" +
+            ") " +
+            "FROM Customer AS cus " +
+            "WHERE cus.deleted = false "
+    )
+    List<CustomerDTO> findAllByDeletedIsFalse();
+
+
+    @Modifying
+    @Query("UPDATE Customer AS cus " +
+            "SET cus.balance = cus.balance + :transactionAmount " +
+            "WHERE cus = :customer"
+    )
+    void incrementBalance(@Param("transactionAmount")BigDecimal transactionAmount, @Param("customer") Customer customer );
+
+    @Modifying
+    @Query("UPDATE Customer AS cus " +
+            "SET cus.balance = cus.balance - :transactionAmount " +
+            "WHERE cus = :customer"
+    )
+    void decrementBalance(@Param("transactionAmount")BigDecimal transactionAmount, @Param("customer") Customer customer );
 }

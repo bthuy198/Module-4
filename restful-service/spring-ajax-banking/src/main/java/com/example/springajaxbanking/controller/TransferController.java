@@ -36,7 +36,7 @@ public class TransferController {
         List<Customer> recipients = customerService.findAllByIdNot(senderId);
         model.addAttribute("recipients", recipients);
         model.addAttribute("transfer", transfer);
-        return "customer/transfer";
+        return "customer/history";
     }
     @PostMapping("/{id}")
     public String transfer(@PathVariable("id") String sender_Id, @Validated @ModelAttribute Transfer transfer, BindingResult bindingResult, Model model){

@@ -4,8 +4,10 @@ import com.example.springajaxbanking.exception.DataInputException;
 import com.example.springajaxbanking.exception.FieldExistsException;
 import com.example.springajaxbanking.exception.ResourceNotFoundException;
 import com.example.springajaxbanking.model.*;
-import com.example.springajaxbanking.model.dto.CustomerDTO;
+import com.example.springajaxbanking.model.dto.*;
 import com.example.springajaxbanking.service.customer.ICustomerService;
+import com.example.springajaxbanking.service.deposit.IDepositService;
+import com.example.springajaxbanking.service.transfer.ITransferService;
 import com.example.springajaxbanking.utils.AppUtils;
 import com.mysql.cj.xdevapi.JsonNumber;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +29,16 @@ public class CustomerAPI {
     @Autowired
     private ICustomerService customerService;
     @Autowired
+    private ITransferService transferService;
+    @Autowired
+    private IDepositService depositService;
+    @Autowired
     private AppUtils appUtils;
 
     @GetMapping
     public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
 
-        List<CustomerDTO> customerDTOS = customerService.findAllCustomerDTO();
+        List<CustomerDTO> customerDTOS = customerService.findAllByDeletedIsFalse();
 
         return new ResponseEntity<>(customerDTOS, HttpStatus.OK);
     }
@@ -81,132 +87,140 @@ public class CustomerAPI {
 
         customerDTO.setId(id);
         customerDTO.setBalance(optionalCustomer.get().getBalance());
-        customerDTO.setLocationRegion(optionalCustomer.get().getLocationRegion().toLocationRegionDTO());
 
-//        LocationRegion locationRegion;
-//        if (customerDTO.getLocationRegion() == null) {
-//            locationRegion = optionalCustomer.get().getLocationRegion();
-//        } else {
-//            locationRegion = customerDTO.getLocationRegion().toLocationRegion();
-//        }
-
-//        customerDTO.setLocationRegion(locationRegion.toLocationRegionDTO());
         customerService.save(customerDTO.toCustomer());
 
         return new ResponseEntity<>(customerDTO, HttpStatus.OK);
     }
 
     @PostMapping("/delete/{id}")
-    public ResponseEntity<?> remove(@PathVariable long id){
-
+    public ResponseEntity<?> remove(@PathVariable long id) {
+        Customer customer = customerService.findById(id).get();
+        customerService.delete(customer);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/deposit/{id}")
-    public ResponseEntity<?> deposit(@PathVariable long id, @Validated @RequestBody Deposit deposit, BindingResult bindingResult) {
+
+    @PostMapping("/deposit/{id}")
+    public ResponseEntity<?> deposit(@PathVariable long id, @Validated @RequestBody DepositDTO depositDTO, BindingResult bindingResult) {
         Optional<Customer> customerOptional = customerService.findById(id);
 
         if (!customerOptional.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("Not found this customer");
         }
-        Customer customer = customerOptional.get();
-
-        BigDecimal transactionAmount = deposit.getTransactionAmount();
-        BigDecimal currentBalance = customerOptional.get().getBalance();
-        BigDecimal newBalance = currentBalance.add(transactionAmount);
 
         if (bindingResult.hasFieldErrors()) {
             return appUtils.mapErrorToResponse(bindingResult);
         }
 
-        customer.setBalance(newBalance);
-        customerService.save(customer);
+        Customer customer = customerOptional.get();
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        BigDecimal transactionAmount = BigDecimal.valueOf(Long.parseLong(depositDTO.getTransactionAmount()));
+
+        Deposit deposit = new Deposit();
+        deposit.setCustomer(customer);
+        deposit.setTransactionAmount(transactionAmount);
+
+        customerService.deposit(deposit);
+
+        customer.setBalance(customerService.findById(id).get().getBalance());
+
+        return new ResponseEntity<>(customer.toCustomerDTO(), HttpStatus.OK);
     }
 
-    @GetMapping("/withdraw/{id}")
-    public ResponseEntity<?> withdraw(@PathVariable long id, @Validated @RequestBody Withdraw withdraw, BindingResult bindingResult) {
+    @PostMapping("/withdraw/{id}")
+    public ResponseEntity<?> withdraw(@PathVariable long id, @Validated @RequestBody WithdrawDTO withdrawDTO, BindingResult bindingResult) {
         Optional<Customer> customerOptional = customerService.findById(id);
 
         if (!customerOptional.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("Not found this customer");
         }
-        Customer customer = customerOptional.get();
-
-        BigDecimal transactionAmount = withdraw.getTransactionAmount();
-        BigDecimal currentBalance = customerOptional.get().getBalance();
 
         if (bindingResult.hasFieldErrors()) {
             return appUtils.mapErrorToResponse(bindingResult);
         }
+
+        Customer customer = customerOptional.get();
+
+        BigDecimal transactionAmount = BigDecimal.valueOf(Long.parseLong(withdrawDTO.getTransactionAmount()));
+        BigDecimal currentBalance = customerOptional.get().getBalance();
 
         if (transactionAmount.compareTo(currentBalance) == 1) {
             throw new DataInputException("Your balance not enough to withdraw");
         }
-        BigDecimal newBalance = currentBalance.add(transactionAmount);
+//        BigDecimal newBalance = currentBalance.add(transactionAmount);
+
+        Withdraw withdraw = new Withdraw();
+
+        withdraw.setCustomer(customer);
+        withdraw.setTransactionAmount(transactionAmount);
+        customerService.withdraw(withdraw);
+
+        customer.setBalance(customerService.findById(id).get().getBalance());
+
+//        customer.setBalance(newBalance);
+//        withdraw.setCustomer(customer);
+//        customerService.withdraw(withdraw);
 
 
-        customer.setBalance(newBalance);
-        customerService.save(customer);
-
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(customer.toCustomerDTO(), HttpStatus.OK);
     }
 
-    @GetMapping("/transfer/{id}")
-    public ResponseEntity<?> transfer(@PathVariable long id, @Validated @RequestBody Transfer transfer, BindingResult bindingResult) {
+    @PostMapping("/transfer/{id}")
+    public ResponseEntity<?> transfer(@PathVariable long id, @Validated @RequestBody TransferDTO transferDTO, BindingResult bindingResult) {
         Optional<Customer> optionalSender = customerService.findById(id);
-        long recipientId = transfer.getRecipient().getId();
+        long recipientId = Long.parseLong(transferDTO.getRecipientId());
         Optional<Customer> optionalRecipient = customerService.findById(recipientId);
+
+        if (id == recipientId) {
+            throw new DataInputException("Invalid Recipient");
+        }
+
+        if (!(optionalSender.isPresent()) || !(optionalRecipient.isPresent())) {
+            throw new ResourceNotFoundException("Not found Sender or Recipient");
+        }
 
         Customer sender = optionalSender.get();
         Customer recipient = optionalRecipient.get();
 
-        if(bindingResult.hasFieldErrors()){
+
+        if (bindingResult.hasFieldErrors()) {
             return appUtils.mapErrorToResponse(bindingResult);
         }
 
-        if(!(optionalSender.isPresent() || optionalRecipient.isPresent())){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
         BigDecimal senderBalance = sender.getBalance();
-        BigDecimal recipientBalance = recipient.getBalance();
 
-        BigDecimal transferAmount = transfer.getTransferAmount();
+        BigDecimal transferAmount = BigDecimal.valueOf(Long.parseLong(transferDTO.getTransferAmount()));
         Long fees = 10L;
 
 
         BigDecimal feesAmount = transferAmount.multiply(BigDecimal.valueOf(fees)).divide(BigDecimal.valueOf(100L));
         BigDecimal totalAmount = transferAmount.add(feesAmount);
 
+        if (senderBalance.compareTo(totalAmount) < 0) {
+            throw new DataInputException("Your balance not enough to make this transaction");
+        }
 
-            if(sender.getId() == recipient.getId()){
-                throw new FieldExistsException("Invalid Recipient");
-            }
-            if(senderBalance.compareTo(totalAmount) < 0){
-                throw new DataInputException("Your balance not enough to make this transaction");
-            }
-
-        BigDecimal sender_newBalance = senderBalance.subtract(totalAmount);
-        sender.setBalance(sender_newBalance);
-
-        BigDecimal recipient_newBalance = recipientBalance.add(transferAmount);
-        recipient.setBalance(recipient_newBalance);
-
-        transfer.setRecipient(recipient);
-        transfer.setSender(sender);
+        Transfer transfer = new Transfer();
         transfer.setTransferAmount(transferAmount);
-        transfer.setTotalAmount(totalAmount);
-        transfer.setFees(fees);
         transfer.setFeesAmount(feesAmount);
+        transfer.setTotalAmount(totalAmount);
+        transfer.setSender(sender);
+        transfer.setRecipient(recipient);
+        transfer = customerService.transfer(transfer);
 
-        customerService.transfer(transfer);
-
-        transfer.setTransferAmount(BigDecimal.ZERO);
-
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(transfer.transferDTO(), HttpStatus.OK);
     }
 
+
+    @GetMapping("/transfer")
+    public ResponseEntity<?> showTransferHistory(){
+        List<TransferViewDTO> transferViewDTOList = transferService.findAllTransferViewDTO();
+        return new ResponseEntity<>(transferViewDTOList, HttpStatus.OK);
+    }
+    @GetMapping("/deposit")
+    public ResponseEntity<?> showDepositHistory(){
+        List<DepositViewDTO> depositViewDTOS = depositService.findAllDepositViewDTO();
+        return new ResponseEntity<>(depositViewDTOS, HttpStatus.OK);
+    }
 }

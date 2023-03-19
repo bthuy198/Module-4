@@ -1,11 +1,23 @@
 package com.example.springajaxbanking.model;
 
+import com.example.springajaxbanking.model.dto.TransferDTO;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Accessors(chain = true)
 @Entity
 @Table(name = "transfers")
 public class Transfer extends BaseEntity{
@@ -29,72 +41,15 @@ public class Transfer extends BaseEntity{
     @Column(name="total_amount", precision = 10, scale = 0, nullable = false)
     private BigDecimal totalAmount;
 
-    public Transfer() {
-    }
-
-    public Transfer(long id, Customer sender, Customer recipient, BigDecimal transferAmount, long fees, BigDecimal feesAmount, BigDecimal totalAmount) {
-        this.id = id;
-        this.sender = sender;
-        this.recipient = recipient;
-        this.transferAmount = transferAmount;
-        this.fees = fees;
-        this.feesAmount = feesAmount;
-        this.totalAmount = totalAmount;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public Customer getSender() {
-        return sender;
-    }
-
-    public void setSender(Customer sender) {
-        this.sender = sender;
-    }
-
-    public Customer getRecipient() {
-        return recipient;
-    }
-
-    public void setRecipient(Customer recipient) {
-        this.recipient = recipient;
-    }
-
-    public BigDecimal getTransferAmount() {
-        return transferAmount;
-    }
-
-    public void setTransferAmount(BigDecimal transactionAmount) {
-        this.transferAmount = transactionAmount;
-    }
-
-    public long getFees() {
-        return fees;
-    }
-
-    public void setFees(long fees) {
-        this.fees = fees;
-    }
-
-    public BigDecimal getFeesAmount() {
-        return feesAmount;
-    }
-
-    public void setFeesAmount(BigDecimal feesAmount) {
-        this.feesAmount = feesAmount;
-    }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
+    public TransferDTO transferDTO(){
+        return new TransferDTO()
+                .setTransferAmount(String.valueOf(transferAmount))
+                .setFeesAmount(String.valueOf(feesAmount))
+                .setTotalAmount(String.valueOf(totalAmount))
+                .setSenderId(String.valueOf(sender.getId()))
+                .setSenderName(String.valueOf(sender.getFullName()))
+                .setRecipientId(String.valueOf(recipient.getId()))
+                .setRecipientName(String.valueOf(recipient.getFullName()))
+                ;
     }
 }
